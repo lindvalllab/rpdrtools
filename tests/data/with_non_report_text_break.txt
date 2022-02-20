@@ -1,0 +1,5 @@
+EMPI|EPIC_PMRN|MRN_Type|MRN|Date|Procedure_Name|Code_Type|Code|Procedure_Flag|Quantity|Provider|Clinic|Hospital|Inpatient_Outpatient|Encounter_number
+012345|012345|MGH|012345|1/1/2000|Procedure name
+can sometimes
+take several
+lines|CPT|00000||1|Name|Clinic|MGH|Inpatient|012345

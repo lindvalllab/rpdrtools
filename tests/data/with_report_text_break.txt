@@ -1,0 +1,24 @@
+EMPI|EPIC_PMRN|MRN_Type|MRN|Report_Number|Report_Date_Time|Report_Description|Report_Status|Report_Type|Report_Text
+012345|012345|MGH|012345|999999|1/1/2000 9:00:00 AM|ABCDE|F|GHIJK|
+This is an example report text. The format may not reflect a typical note.
+
+Patient name: First Last
+
+Sex: Male
+
+DOB: 1/1/1950
+
+HPI: ?
+[report_end]
+
+1515156|33445567|BWH|444444|0123456|1/1/2012 8:00:00 PM|ABCDE|F|GHIJK|
+This is an example report text. The format may not reflect a typical note.
+
+Patient name: First Last
+
+Sex: Female
+
+DOB: 3/6/1980
+
+HPI: ?
+[report_end]

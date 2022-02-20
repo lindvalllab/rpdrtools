@@ -1,0 +1,1 @@
+EMPI|EPIC_PMRN|MRN_Type|MRN|Date|Procedure_Name|Code_Type|Code|Procedure_Flag|Quantity|Provider|Clinic|Hospital|Inpatient_Outpatient|Encounter_number
