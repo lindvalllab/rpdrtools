@@ -2,6 +2,7 @@ name: Checks
 on: push
 jobs:
   check:
+    name: Run checks (linting, unit tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -13,7 +14,7 @@ jobs:
       - name: Load cached Poetry installation
         uses: actions/cache@v2
         with:
-          path: ~/.local   # path depends on the OS
+          path: ~/.local # path depends on the OS
           key: cache-poetry
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -23,6 +24,7 @@ jobs:
       - name: Load cached dependencies
         uses: actions/cache@v2
         id: cache-dependencies
+        path: ".venv"
         with:
           key: poetry-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
@@ -34,4 +36,3 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
-        
