@@ -11,10 +11,14 @@ DEFAULT_NEWLINE_CHAR = "\r\n"
 def _merge_rows(
     row1: List[str], row2: List[str], newline_char: str = DEFAULT_NEWLINE_CHAR
 ):
-    """For combining two rows of a "malformed" record when stepping through an RPDR *.txt file.
+    """For combining two rows of a "malformed" record when stepping through an
+    RPDR *.txt file.
 
-    This situation mainly occurs when there is an unexpected line break in the middle of a string/text field (e.g. Report_Text).
-    The lists are merged by concatenating the two with their "innermost" elements (strings) concatenated, separated by a newline.
+    This situation mainly occurs when there is an unexpected line break in the
+    middle of a string/text field (e.g. Report_Text).
+
+    The lists are merged by concatenating the two with their "innermost"
+    elements (strings) concatenated, separated by a newline.
 
     Example:
 
@@ -50,14 +54,17 @@ def reader(
 ) -> Generator[List[str], None, None]:
     """Returns a generator that yields the records of a RPDR *.txt file.
 
-    Currently, RPDR files cannot be correctly read by regular CSV tools (e.g. csv.reader, pd.read_csv).
-    Due to some formatting quirks with line breaks/quoting, records may be split up over several rows
-    within the CSV.
+    Currently, RPDR files cannot be correctly read by regular CSV tools (e.g.
+    csv.reader, pd.read_csv).
 
-    This function attempts to piece together the rows into complete records. If it is unable to do this,
-    it will throw an error.
+    Due to some formatting quirks with line breaks/quoting, records may be
+    split up over several rows within the CSV.
 
-    Assumes the file uses \r\n for new lines. (This can be modified by specifying newline_char.)"""
+    This function attempts to piece together the rows into complete records.
+    If it is unable to do this, it will throw an error.
+
+    Assumes the file uses \r\n for new lines. (This can be modified by
+    specifying newline_char.)"""
 
     if not isinstance(path, Path):
         path = Path(path)
@@ -84,7 +91,7 @@ def reader(
             return
 
         for row in reader:
-            # if the row is length 0 or 1 we assume it belongs to the previous row's data
+            # if the row is length 0 or 1 we assume it belongs to the previous record
             if len(record) == len(header) and len(row) > 1:
                 yield record
                 progress.update(task, advance=_get_bytes(record, newline_char))
@@ -94,7 +101,8 @@ def reader(
 
             elif len(record) > len(header):
                 raise RuntimeError(
-                    "Could not piece together record. Row lengths do not add up to the expected number of fields."
+                    "Could not piece together record. Row lengths do not add "
+                    "up to the expected number of fields."
                 )
 
             # merge row
@@ -116,7 +124,8 @@ def read_file(
 ) -> pd.DataFrame:
     """Reads an RPDR *.txt file into a Pandas DataFrame.
 
-    Assumes the file uses \r\n for new lines. (This can be modified by specifying newline_char.)"""
+    Assumes the file uses \r\n for new lines. (This can be modified by specifying
+    the newline_char parameter.)"""
 
     records = reader(path, include_header=True, newline_char=newline_char)
 

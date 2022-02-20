@@ -69,8 +69,20 @@ class TestRead:
                 "Report_Status": ["F", "F"],
                 "Report_Type": ["GHIJK", "GHIJK"],
                 "Report_Text": [
-                    "\r\nThis is an example report text. The format may not reflect a typical note.\r\n\r\nPatient name: First Last\r\n\r\nSex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\nHPI: ?\r\n[report_end]\r\n",
-                    "\r\nThis is an example report text. The format may not reflect a typical note.\r\n\r\nPatient name: First Last\r\n\r\nSex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\nHPI: ?\r\n[report_end]",
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
+                        "HPI: ?\r\n[report_end]\r\n"
+                    ),
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
                 ],
             }
         )

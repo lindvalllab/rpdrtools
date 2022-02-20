@@ -14,6 +14,7 @@ pytest = "^7.0.1"
 pandas-stubs = "^1.2.0"
 pip-licenses = "^3.5.3"
 black = "^22.1.0"
+flake8 = "^4.0.1"
 mypy = {git = "https://github.com/python/mypy.git"}
 
 [build-system]
