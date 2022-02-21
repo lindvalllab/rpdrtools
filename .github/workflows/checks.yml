@@ -33,6 +33,9 @@ jobs:
       - name: Lint
         run: |
           poetry run flake8
+      - name: Type check
+        run: |
+          poetry run mypy
       - name: Run tests
         run: |
           poetry run pytest
