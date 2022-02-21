@@ -10,7 +10,7 @@ DEFAULT_NEWLINE_CHAR = "\r\n"
 
 def _merge_rows(
     row1: List[str], row2: List[str], newline_char: str = DEFAULT_NEWLINE_CHAR
-):
+) -> List[str]:
     """For combining two rows of a "malformed" record when stepping through an
     RPDR *.txt file.
 
@@ -41,7 +41,7 @@ def _merge_rows(
     return [*row1[:-1], newline_char.join([row1[-1], row2[0]]), *row2[1:]]
 
 
-def _get_bytes(row: List[str], newline_char=DEFAULT_NEWLINE_CHAR):
+def _get_bytes(row: List[str], newline_char: str = DEFAULT_NEWLINE_CHAR) -> int:
     """Return the number of bytes of a given row as read by csv.reader."""
 
     return len(("|".join(row) + newline_char).encode("utf-8"))
