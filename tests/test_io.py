@@ -19,24 +19,24 @@ def no_records() -> pd.DataFrame:
 
 
 class TestMergeRows:
-    def test_both_empty(self):
+    def test_both_empty(self) -> None:
         with pytest.raises(Exception):
             io._merge_rows([], [])
 
-    def test_first_empty(self):
+    def test_first_empty(self) -> None:
         with pytest.raises(Exception):
             io._merge_rows([], ["A"])
 
-    def test_second_empty(self):
+    def test_second_empty(self) -> None:
         assert io._merge_rows(["A"], []) == ["A\r\n"]
 
-    def test_empty_string(self):
+    def test_empty_string(self) -> None:
         assert io._merge_rows(["A"], [""]) == ["A\r\n"]
 
-    def test_empty_strings(self):
+    def test_empty_strings(self) -> None:
         assert io._merge_rows([""], [""]) == ["\r\n"]
 
-    def test_basic_example(self):
+    def test_basic_example(self) -> None:
         assert io._merge_rows(["A", "B", "C"], ["D", "E"]) == [
             "A",
             "B",
@@ -46,17 +46,17 @@ class TestMergeRows:
 
 
 class TestGetBytes:
-    def test_empty_row(self):
+    def test_empty_row(self) -> None:
         # should be two for the line break (default \r\n)
         assert io._get_bytes([]) == 2
 
-    def test_row_with_one_element(self):
+    def test_row_with_one_element(self) -> None:
         # should be one for the "A" and two for the line break (default \r\n)
         assert io._get_bytes(["A"]) == 3
 
 
 class TestRead:
-    def test_report_text_break(self, with_report_text_break):
+    def test_report_text_break(self, with_report_text_break: pd.DataFrame) -> None:
         expected = pd.DataFrame(
             {
                 "EMPI": ["012345", "1515156"],
@@ -89,7 +89,9 @@ class TestRead:
 
         pd.testing.assert_frame_equal(with_report_text_break, expected)
 
-    def test_non_report_text_break(self, with_non_report_text_break):
+    def test_non_report_text_break(
+        self, with_non_report_text_break: pd.DataFrame
+    ) -> None:
         expected = pd.DataFrame(
             {
                 "EMPI": ["012345"],
@@ -114,7 +116,7 @@ class TestRead:
 
         pd.testing.assert_frame_equal(with_non_report_text_break, expected)
 
-    def test_no_records(self, no_records):
+    def test_no_records(self, no_records: pd.DataFrame) -> None:
         expected = pd.DataFrame(
             (),
             columns=[
