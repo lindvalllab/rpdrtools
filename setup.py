@@ -3,6 +3,6 @@ from setuptools import setup
 setup(
     name="rpdrtools",
     package_data={"rpdrtools": ["py.typed"]},
-    packages=["prdrtools"],
+    packages=["rpdrtools"],
     zip_safe=False,
 )
