@@ -13,6 +13,7 @@ jobs:
           python-version: 3.9
       - name: Load cached Poetry installation
         uses: actions/cache@v2
+        id: cache-poetry
         with:
           path: ~/.local # path depends on the OS
           key: cache-poetry
