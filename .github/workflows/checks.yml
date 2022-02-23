@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction
+      - name: List config and dependencies
+        run: |
+          poetry config --list
+          poetry show
       - name: Lint
         run: |
           poetry run flake8
