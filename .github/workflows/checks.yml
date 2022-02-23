@@ -28,8 +28,6 @@ jobs:
         run: poetry install --no-interaction
       - name: List config and dependencies
         run: |
-          ls
-          ls .venv
           poetry config --list
           poetry show
       - name: Lint
