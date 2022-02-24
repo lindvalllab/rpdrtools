@@ -34,6 +34,11 @@ jobs:
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: poetry install
+      - name: Print stuff
+        run: |
+          ls -a1
+          poetry config --list
+          poetry show
       - name: Lint
         run: |
           poetry run flake8
