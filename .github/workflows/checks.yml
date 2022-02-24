@@ -18,26 +18,21 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
-      - name: Print stuff
+      - name: Load cached dependencies
+        uses: actions/cache@v2
+        id: cache-dependencies
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: poetry install
+      - name: Lint
         run: |
-          ls -a1
-          poetry config --list
-          poetry show
-      # - name: Load cached dependencies
-      #   uses: actions/cache@v2
-      #   id: cache-dependencies
-      #   with:
-      #     path: .venv
-      #     key: poetry-${{ hashFiles('**/poetry.lock') }}
-      # - name: Install dependencies
-      #   if: steps.cache-dependencies.outputs.cache-hit != 'true'
-      #   run: poetry install
-      # - name: Lint
-      #   run: |
-      #     poetry run flake8
-      # - name: Type check
-      #   run: |
-      #     poetry run mypy
-      # - name: Run tests
-      #   run: |
-      #     poetry run pytest
+          poetry run flake8
+      - name: Type check
+        run: |
+          poetry run mypy
+      - name: Run tests
+        run: |
+          poetry run pytest
