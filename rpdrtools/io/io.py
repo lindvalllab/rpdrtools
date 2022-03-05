@@ -59,7 +59,7 @@ def _found_report_end(record: List[str]) -> bool:
 
 def reader(
     path: Union[Path, str],
-    on_broken_records: OnBrokenRecordsType = "repair",
+    on_broken_records: OnBrokenRecordsType = "raise",
     include_header: bool = False,
     newline_char: str = RPDR_NEWLINE_CHAR,
 ) -> Generator[List[str], None, None]:
@@ -190,7 +190,7 @@ def reader(
 
 def read_file(
     path: Union[Path, str],
-    on_broken_records: OnBrokenRecordsType = "repair",
+    on_broken_records: OnBrokenRecordsType = "raise",
     newline_char: str = RPDR_NEWLINE_CHAR,
 ) -> pd.DataFrame:
     """Reads an RPDR *.txt file into a Pandas DataFrame.
