@@ -72,7 +72,7 @@ def reader(
     Due to some formatting quirks with line breaks/quoting, records may be
     split up over several rows within the CSV.
 
-    If on_broken_records is True, this function attempt to piece together the
+    If on_broken_records is "repair", this function attempts to piece together the
     rows into complete records. (If it is unable to do this, it will throw an error.)
 
     Assumes the file uses \r\n for new lines. (This can be modified by
