@@ -91,8 +91,6 @@ class TestRead:
                 ],
             }
         )
-        print(repr(result["Report_Text"].iloc[1]))
-        print(repr(expected["Report_Text"].iloc[1]))
         pd.testing.assert_frame_equal(result, expected)
 
     def test_report_text_break_skipped(self, sample_file: SampleFileFixture) -> None:
