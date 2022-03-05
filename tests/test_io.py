@@ -1,21 +1,22 @@
+import logging
+from pathlib import Path
+from typing import Callable, Union
 import pandas as pd
 import pytest
 import rpdrtools.io as io
+from rpdrtools.io.types import OnBrokenRecordsType
+
+SampleFileFixture = Callable[..., pd.DataFrame]
 
 
 @pytest.fixture
-def with_report_text_break() -> pd.DataFrame:
-    return io.read_file("tests/data/with_report_text_break.txt")
+def sample_file() -> SampleFileFixture:
+    def _sample_file(
+        path: Union[Path, str], on_broken_records: io.types.OnBrokenRecordsType
+    ) -> pd.DataFrame:
+        return io.read_file(path, on_broken_records=on_broken_records)
 
-
-@pytest.fixture
-def with_non_report_text_break() -> pd.DataFrame:
-    return io.read_file("tests/data/with_non_report_text_break.txt")
-
-
-@pytest.fixture
-def no_records() -> pd.DataFrame:
-    return io.read_file("tests/data/no_records.txt")
+    return _sample_file
 
 
 class TestMergeRows:
@@ -56,7 +57,11 @@ class TestGetBytes:
 
 
 class TestRead:
-    def test_report_text_break(self, with_report_text_break: pd.DataFrame) -> None:
+    def test_report_text_break(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/report_text_break.txt",
+            on_broken_records="repair",
+        )
         expected = pd.DataFrame(
             {
                 "EMPI": ["012345", "1515156"],
@@ -74,7 +79,7 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]\r\n"
+                        "HPI: ?\r\n[report_end]"
                     ),
                     (
                         "\r\nThis is an example report text. "
@@ -86,12 +91,49 @@ class TestRead:
                 ],
             }
         )
+        pd.testing.assert_frame_equal(result, expected)
 
-        pd.testing.assert_frame_equal(with_report_text_break, expected)
+    def test_pipe_in_report_text(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/pipe_in_report_text.txt",
+            on_broken_records="repair",
+        )
+        expected = pd.DataFrame(
+            {
+                "EMPI": ["012345", "1515156"],
+                "EPIC_PMRN": ["012345", "33445567"],
+                "MRN_Type": ["MGH", "BWH"],
+                "MRN": ["012345", "444444"],
+                "Report_Number": ["999999", "0123456"],
+                "Report_Date_Time": ["1/1/2000 9:00:00 AM", "1/1/2012 8:00:00 PM"],
+                "Report_Description": ["ABCDE", "ABCDE"],
+                "Report_Status": ["F", "F"],
+                "Report_Type": ["GHIJK", "GHIJK"],
+                "Report_Text": [
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "|Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                ],
+            }
+        )
+        pd.testing.assert_frame_equal(result, expected)
 
-    def test_non_report_text_break(
-        self, with_non_report_text_break: pd.DataFrame
-    ) -> None:
+    def test_non_report_text_break(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/non_report_text_break.txt",
+            on_broken_records="repair",
+        )
         expected = pd.DataFrame(
             {
                 "EMPI": ["012345"],
@@ -114,9 +156,13 @@ class TestRead:
             }
         )
 
-        pd.testing.assert_frame_equal(with_non_report_text_break, expected)
+        pd.testing.assert_frame_equal(result, expected)
 
-    def test_no_records(self, no_records: pd.DataFrame) -> None:
+    def test_no_records(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/no_records.txt",
+            on_broken_records="repair",
+        )
         expected = pd.DataFrame(
             (),
             columns=[
@@ -137,4 +183,92 @@ class TestRead:
                 "Encounter_number",
             ],
         )
-        pd.testing.assert_frame_equal(no_records, expected)
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_no_exception_on_report_text_breaks(
+        self, sample_file: SampleFileFixture
+    ) -> None:
+        result = sample_file(
+            path="tests/data/report_text_break.txt",
+            on_broken_records="raise",
+        )
+        expected = pd.DataFrame(
+            {
+                "EMPI": ["012345", "1515156"],
+                "EPIC_PMRN": ["012345", "33445567"],
+                "MRN_Type": ["MGH", "BWH"],
+                "MRN": ["012345", "444444"],
+                "Report_Number": ["999999", "0123456"],
+                "Report_Date_Time": ["1/1/2000 9:00:00 AM", "1/1/2012 8:00:00 PM"],
+                "Report_Description": ["ABCDE", "ABCDE"],
+                "Report_Status": ["F", "F"],
+                "Report_Type": ["GHIJK", "GHIJK"],
+                "Report_Text": [
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                ],
+            }
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_exception_when_report_text_not_last(
+        self, sample_file: SampleFileFixture
+    ) -> None:
+        with pytest.raises(IndexError):
+            sample_file(
+                path="tests/data/report_text_not_last.txt",
+                on_broken_records="repair",
+            )
+
+    def test_exception_on_non_report_text_breaks(
+        self, sample_file: SampleFileFixture
+    ) -> None:
+        with pytest.raises(RuntimeError):
+            sample_file(
+                path="tests/data/non_report_text_break.txt",
+                on_broken_records="raise",
+            )
+
+    @pytest.mark.parametrize(
+        "on_broken_records, broken_records_result",
+        [("skip", "skipped"), ("repair", "repaired")],
+    )
+    def test_logging_warnings(
+        self,
+        caplog: pytest.LogCaptureFixture,
+        sample_file: SampleFileFixture,
+        on_broken_records: OnBrokenRecordsType,
+        broken_records_result: str,
+    ) -> None:
+        sample_file(
+            path="tests/data/non_report_text_break.txt",
+            on_broken_records=on_broken_records,
+        )
+
+        assert f"Found 4 broken rows which were {broken_records_result}." in caplog.text
+
+    def test_logging_info(
+        self,
+        caplog: pytest.LogCaptureFixture,
+        sample_file: SampleFileFixture,
+    ) -> None:
+        with caplog.at_level(logging.INFO):
+            sample_file(
+                path="tests/data/report_text_break.txt",
+                on_broken_records="skip",
+            )
+
+        assert "No broken rows were found." in caplog.text

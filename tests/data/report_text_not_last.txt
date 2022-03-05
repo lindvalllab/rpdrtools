@@ -1,0 +1,1 @@
+EMPI|EPIC_PMRN|MRN_Type|MRN|Date|Report_Text|Report_Number
