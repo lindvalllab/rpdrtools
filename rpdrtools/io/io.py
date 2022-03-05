@@ -110,7 +110,9 @@ def reader(
         n_broken_rows = 1 if len(record) < len(header) else 0
 
         for row_number, row in enumerate(reader):
-            found_report_end = record[-1].endswith(RPDR_REPORT_END_TOKEN)
+            found_report_end = len(record) > 0 and record[-1].endswith(
+                RPDR_REPORT_END_TOKEN
+            )
             in_report_text = (
                 has_report_text and len(record) == len(header) and not found_report_end
             )
@@ -134,7 +136,7 @@ def reader(
                 )
 
             # prevent extra empty rows/line breaks after RPDR_REPORT_END_TOKEN
-            elif found_report_end:
+            elif found_report_end and len(row) == 0:
                 continue
 
             # merge row
@@ -146,8 +148,9 @@ def reader(
                 elif on_broken_records == "repair":
                     record = _merge_rows(record, row, newline_char)
 
-                else:
-                    pass
+                elif on_broken_records == "skip":
+                    # start new record
+                    record = row[:]
 
         # handle last record
         if len(record) != len(header):

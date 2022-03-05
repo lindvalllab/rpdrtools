@@ -57,7 +57,7 @@ class TestGetBytes:
 
 
 class TestRead:
-    def test_report_text_break(self, sample_file: SampleFileFixture) -> None:
+    def test_report_text_break_repaired(self, sample_file: SampleFileFixture) -> None:
         result = sample_file(
             path="tests/data/report_text_break.txt",
             on_broken_records="repair",
@@ -93,7 +93,43 @@ class TestRead:
         )
         pd.testing.assert_frame_equal(result, expected)
 
-    def test_pipe_in_report_text(self, sample_file: SampleFileFixture) -> None:
+    def test_report_text_break_skipped(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/report_text_break.txt",
+            on_broken_records="skip",
+        )
+        expected = pd.DataFrame(
+            {
+                "EMPI": ["012345", "1515156"],
+                "EPIC_PMRN": ["012345", "33445567"],
+                "MRN_Type": ["MGH", "BWH"],
+                "MRN": ["012345", "444444"],
+                "Report_Number": ["999999", "0123456"],
+                "Report_Date_Time": ["1/1/2000 9:00:00 AM", "1/1/2012 8:00:00 PM"],
+                "Report_Description": ["ABCDE", "ABCDE"],
+                "Report_Status": ["F", "F"],
+                "Report_Type": ["GHIJK", "GHIJK"],
+                "Report_Text": [
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                ],
+            }
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_pipe_in_report_text_repaired(self, sample_file: SampleFileFixture) -> None:
         result = sample_file(
             path="tests/data/pipe_in_report_text.txt",
             on_broken_records="repair",
@@ -129,7 +165,9 @@ class TestRead:
         )
         pd.testing.assert_frame_equal(result, expected)
 
-    def test_non_report_text_break(self, sample_file: SampleFileFixture) -> None:
+    def test_non_report_text_break_repaired(
+        self, sample_file: SampleFileFixture
+    ) -> None:
         result = sample_file(
             path="tests/data/non_report_text_break.txt",
             on_broken_records="repair",
@@ -153,6 +191,103 @@ class TestRead:
                 "Hospital": ["MGH"],
                 "Inpatient_Outpatient": ["Inpatient"],
                 "Encounter_number": ["012345"],
+            }
+        )
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_non_report_text_break_skipped(
+        self, sample_file: SampleFileFixture
+    ) -> None:
+        result = sample_file(
+            path="tests/data/non_report_text_break.txt",
+            on_broken_records="skip",
+        )
+        expected = pd.DataFrame(
+            (),
+            columns=[
+                "EMPI",
+                "EPIC_PMRN",
+                "MRN_Type",
+                "MRN",
+                "Date",
+                "Procedure_Name",
+                "Code_Type",
+                "Code",
+                "Procedure_Flag",
+                "Quantity",
+                "Provider",
+                "Clinic",
+                "Hospital",
+                "Inpatient_Outpatient",
+                "Encounter_number",
+            ],
+        )
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_both_breaks_repaired(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/both_breaks.txt",
+            on_broken_records="repair",
+        )
+        expected = pd.DataFrame(
+            {
+                "EMPI": ["012345", "1515156"],
+                "EPIC_PMRN": ["012345", "33445567"],
+                "MRN_Type": ["MGH", "BWH"],
+                "MRN": ["012345", "444444"],
+                "Report_Number": ["999999", "0123456"],
+                "Report_Date_Time": ["1/1/2000 9:00:00 AM", "1/1/2012 8:00:00 PM"],
+                "Report_Description": ["ABC\r\nDE", "ABCDE"],
+                "Report_Status": ["F", "F"],
+                "Report_Type": ["GHIJK", "GHIJK"],
+                "Report_Text": [
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                ],
+            }
+        )
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_both_breaks_skipped(self, sample_file: SampleFileFixture) -> None:
+        result = sample_file(
+            path="tests/data/both_breaks.txt",
+            on_broken_records="skip",
+        )
+        expected = pd.DataFrame(
+            {
+                "EMPI": ["1515156"],
+                "EPIC_PMRN": ["33445567"],
+                "MRN_Type": ["BWH"],
+                "MRN": ["444444"],
+                "Report_Number": ["0123456"],
+                "Report_Date_Time": ["1/1/2012 8:00:00 PM"],
+                "Report_Description": ["ABCDE"],
+                "Report_Status": ["F"],
+                "Report_Type": ["GHIJK"],
+                "Report_Text": [
+                    (
+                        "\r\nThis is an example report text. "
+                        "The format may not reflect a typical note."
+                        "\r\n\r\nPatient name: First Last\r\n\r\n"
+                        "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
+                        "HPI: ?\r\n[report_end]"
+                    ),
+                ],
             }
         )
 
