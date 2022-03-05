@@ -53,6 +53,10 @@ def _get_bytes(row: List[str], newline_char: str = RPDR_NEWLINE_CHAR) -> int:
     return len(("|".join(row) + newline_char).encode("utf-8"))
 
 
+def _found_report_end(record: List[str]) -> bool:
+    return len(record) > 0 and record[-1].endswith(RPDR_REPORT_END_TOKEN)
+
+
 def reader(
     path: Union[Path, str],
     on_broken_records: OnBrokenRecordsType = "repair",
@@ -110,11 +114,10 @@ def reader(
         n_broken_rows = 1 if len(record) < len(header) else 0
 
         for row_number, row in enumerate(reader):
-            found_report_end = len(record) > 0 and record[-1].endswith(
-                RPDR_REPORT_END_TOKEN
-            )
             in_report_text = (
-                has_report_text and len(record) == len(header) and not found_report_end
+                has_report_text
+                and len(record) == len(header)
+                and not _found_report_end(record)
             )
 
             if in_report_text:
@@ -123,6 +126,9 @@ def reader(
                 record = _merge_rows(record, [to_add], newline_char)
 
             elif len(record) == len(header) and len(row) > 0:
+                if has_report_text and _found_report_end(record):
+                    record[-1] = record[-1].removesuffix(RPDR_REPORT_END_TOKEN)
+
                 yield record
                 progress.update(task, advance=_get_bytes(record, newline_char))
 
@@ -136,7 +142,7 @@ def reader(
                 )
 
             # prevent extra empty rows/line breaks after RPDR_REPORT_END_TOKEN
-            elif found_report_end and len(row) == 0:
+            elif _found_report_end(record) and len(row) == 0:
                 continue
 
             # merge row
@@ -163,6 +169,9 @@ def reader(
                 pass
 
         else:
+            if has_report_text and _found_report_end(record):
+                record[-1] = record[-1].removesuffix(RPDR_REPORT_END_TOKEN)
+
             yield record
 
         if n_broken_rows > 0:

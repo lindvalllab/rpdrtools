@@ -79,18 +79,20 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                     (
                         "\r\nThis is an example report text. "
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
         )
+        print(repr(result["Report_Text"].iloc[1]))
+        print(repr(expected["Report_Text"].iloc[1]))
         pd.testing.assert_frame_equal(result, expected)
 
     def test_report_text_break_skipped(self, sample_file: SampleFileFixture) -> None:
@@ -115,14 +117,14 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                     (
                         "\r\nThis is an example report text. "
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
@@ -151,14 +153,14 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "|Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                     (
                         "\r\nThis is an example report text. "
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
@@ -248,14 +250,14 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                     (
                         "\r\nThis is an example report text. "
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
@@ -285,7 +287,7 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
@@ -345,14 +347,14 @@ class TestRead:
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Male\r\n\r\nDOB: 1/1/1950\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                     (
                         "\r\nThis is an example report text. "
                         "The format may not reflect a typical note."
                         "\r\n\r\nPatient name: First Last\r\n\r\n"
                         "Sex: Female\r\n\r\nDOB: 3/6/1980\r\n\r\n"
-                        "HPI: ?\r\n[report_end]"
+                        "HPI: ?\r\n"
                     ),
                 ],
             }
