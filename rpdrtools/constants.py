@@ -1,0 +1,4 @@
+RPDR_NEWLINE_CHAR = "\r\n"
+RPDR_FILE_DELIMITER = "|"
+RPDR_REPORT_TEXT_FIELD = "Report_Text"
+RPDR_REPORT_END_TOKEN = "[report_end]"
