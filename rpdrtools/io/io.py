@@ -57,6 +57,124 @@ def _found_report_end(record: List[str]) -> bool:
     return len(record) > 0 and record[-1].endswith(RPDR_REPORT_END_TOKEN)
 
 
+class RPDRReader:
+    def __init__(
+        self,
+        path: Union[Path, str],
+        on_broken_records: OnBrokenRecordsType = 'raise',
+        include_header: bool = False,
+        newline_char: str = RPDR_NEWLINE_CHAR
+    ):
+        if not isinstance(path, Path):
+            path = Path(path);
+
+        self.file_size = path.stat().st_size
+
+        self.progress = 0
+
+        with open(path, 'r', newline='') as rpdr_file:
+            reader = csv.reader(
+                rpdr_file, delimiter=RPDR_FILE_DELIMITER, quoting=csv.QUOTE_NONE
+            )
+
+            # assume there is always a header row
+            header = next(reader)
+
+            self.progress += _get_bytes(header, newline_char)
+            if include_header:
+                yield header
+
+            has_report_text = RPDR_REPORT_TEXT_FIELD in header
+
+            if has_report_text and header.index(RPDR_REPORT_TEXT_FIELD) != len(header) - 1:
+                raise IndexError(
+                    f"{RPDR_REPORT_TEXT_FIELD} is expected to be the last field."
+                )
+
+            # first entry
+            try:
+                record = next(reader)
+
+            except StopIteration:
+                return
+
+            n_broken_rows = 1 if len(record) < len(header) else 0
+
+            for row_number, row in enumerate(reader):
+                in_report_text = (
+                    has_report_text
+                    and len(record) == len(header)
+                    and not _found_report_end(record)
+                )
+
+                if in_report_text:
+                    to_add = RPDR_FILE_DELIMITER.join(row)
+
+                    record = _merge_rows(record, [to_add], newline_char)
+
+                elif len(record) == len(header) and len(row) > 0:
+                    if has_report_text and _found_report_end(record):
+                        record[-1] = record[-1].removesuffix(RPDR_REPORT_END_TOKEN)
+
+                    self.progress += _get_bytes(record, newline_char)
+                    yield record
+
+                    # start new record
+                    record = row[:]
+
+                elif len(record) > len(header):
+                    raise RuntimeError(
+                        "Could not piece together record. "
+                        "Row lengths do not add up to the expected number of fields."
+                    )
+
+                # prevent extra empty rows/line breaks after RPDR_REPORT_END_TOKEN
+                elif _found_report_end(record) and len(row) == 0:
+                    continue
+
+                # merge row
+                else:
+                    n_broken_rows += 1
+                    if on_broken_records == "raise":
+                        raise RuntimeError(f"Broken record found in row {row_number}.")
+
+                    elif on_broken_records == "repair":
+                        record = _merge_rows(record, row, newline_char)
+
+                    elif on_broken_records == "skip":
+                        # start new record
+                        record = row[:]
+
+            # handle last record
+            if len(record) != len(header):
+                if on_broken_records == "raise" or on_broken_records == "repair":
+                    raise RuntimeError(
+                        "Final record does not appear to have the expected "
+                        "number of fields."
+                    )
+                else:
+                    pass
+
+            else:
+                if has_report_text and _found_report_end(record):
+                    record[-1] = record[-1].removesuffix(RPDR_REPORT_END_TOKEN)
+
+                yield record
+
+            if n_broken_rows > 0:
+                broken_record_result = (
+                    "repaired" if on_broken_records == "repair" else "skipped"
+                )
+                logging.warning(
+                    f"Found {n_broken_rows} broken rows which were {broken_record_result}."
+                )
+
+            else:
+                logging.info("No broken rows were found.")
+
+            self.progress += _get_bytes(record, newline_char)
+
+
 def reader(
     path: Union[Path, str],
     on_broken_records: OnBrokenRecordsType = "raise",
